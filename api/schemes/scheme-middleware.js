@@ -1,3 +1,6 @@
+//Bring in Model
+const Schemes = require("./scheme-model")
+
 /*
   If `scheme_id` does not exist in the database:
 
@@ -6,8 +9,15 @@
     "message": "scheme with scheme_id <actual id> not found"
   }
 */
-const checkSchemeId = (req, res, next) => {
+const checkSchemeId =  (req, res, next) => {
+  const { scheme_id } = req.params
 
+  if(!scheme_id){
+    res.status(404).json({ message: `scheme with scheme_id ${scheme_id} not found`})
+  }
+  else{
+    next()
+  }
 }
 
 /*
