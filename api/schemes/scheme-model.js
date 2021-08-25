@@ -28,7 +28,7 @@ function find() { // EXERCISE A
     
 }
 
-function findById(scheme_id) { // EXERCISE B
+async function findById(scheme_id) { // EXERCISE B
   /*
     1B- Study the SQL query below running it in SQLite Studio against `data/schemes.db3`:
 
@@ -41,8 +41,11 @@ function findById(scheme_id) { // EXERCISE B
       WHERE sc.scheme_id = 1
       ORDER BY st.step_number ASC;
 
+    
     2B- When you have a grasp on the query go ahead and build it in Knex
     making it parametric: instead of a literal `1` you should use `scheme_id`.
+
+    
 
     3B- Test in Postman and see that the resulting data does not look like a scheme,
     but more like an array of steps each including scheme information:
@@ -94,9 +97,28 @@ function findById(scheme_id) { // EXERCISE B
         "steps": []
       }
   */
+    
+    const steps = await db("schemes as sc")
+      .select("sc.scheme_name", "st.*")
+      .leftJoin("steps as st", "sc.scheme_id", "st.scheme_id")
+      .where("sc.scheme_id", scheme_id)
+      .orderBy("st.step_number", "asc")
+      
+    return {
+      scheme_id: scheme_id,
+      scheme_name: steps[0].scheme_name,
+      steps: steps.map(step => {
+        return {
+          "step_id" : step.step_id,
+          "step_number" : step.step_number,
+          "instructions": step.instructions
+        }
+      })
+  }
+     
 }
 
-function findSteps(scheme_id) { // EXERCISE C
+async function findSteps(scheme_id) { // EXERCISE C
   /*
     1C- Build a query in Knex that returns the following data.
     The steps should be sorted by step_number, and the array
@@ -117,6 +139,12 @@ function findSteps(scheme_id) { // EXERCISE C
         }
       ]
   */
+      const steps = await db ("schemes as sc")
+        .select("st.step_id", "st.step_number", "instructions", "sc.scheme_name")
+        .leftJoin("steps as st", "sc.scheme_id", "st.scheme_id")
+        .where("sc.scheme_id", scheme_id)
+        .orderBy("st.step_number", "asc")
+      return steps
 }
 
 function add(scheme) { // EXERCISE D
